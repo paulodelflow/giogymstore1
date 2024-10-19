@@ -1,59 +1,143 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './Components/login/Login'; // Ruta al componente Login
-import ResetPasswordForm from './Components/login/resetPassword'; // Importa el componente de ResetPassword
-import Dashboard from './Components/User/dashboard'; // Importa el componente de Dashboard
-import CrearTienda from './Components/admin/Tienda/CrearTienda'; // Importa el componente de CrearTienda
-import { AuthProvider } from './Context/Authcontext'; // Proveedor de contexto de autenticación
-import ProtectedRoute from './Context/ProtectedRoute'; // Componente para proteger rutas
-import RedirectIfLoggedIn from './Context/RedirectIfLoggedIn'; // Componente para redirigir usuarios autenticados
+import Login from './Components/login/Login';
+import ResetPasswordForm from './Components/login/resetPassword';
+import Dashboard from './Components/all/dashboard';
+import CrearTienda from './Components/admin/Tienda/CrearTienda';
+import CrearBodega from './Components/admin/Bodega/CrearBodega'; 
+import { AuthProvider } from './Context/Authcontext';
+import ProtectedRoute from './Context/ProtectedRoute';
+import RedirectIfLoggedIn from './Context/RedirectIfLoggedIn';
+import VerTiendas from './Components/admin/Tienda/Gettiendas';
+import CrearDueño from './Components/duenio/Crear_duenio';
+import VerBodegas from './Components/admin/Bodega/VerBodegas'
+import CrearRack from './Components/User/Bodeguero/Racks/CrearRacks';
+import VerRack from './Components/User/Bodeguero/Racks/VerRacks';
+import QrGene from './Components/User/Bodeguero/Racks/ImprimirQr';
+import PostProd from './Components/User/Bodeguero/Productos/AgregarProductos';
+
+// Importa ToastContainer de react-toastify
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Ruta pública: si el usuario está autenticado, redirige al dashboard */}
+          {/*Ruta de Login */}
           <Route 
             path="/" 
             element={
               <RedirectIfLoggedIn>
-                <Login /> {/* Muestra el Login solo si no está autenticado */}
+                <Login />
               </RedirectIfLoggedIn>
             } 
           />
 
-          {/* Ruta pública: si el usuario está autenticado, redirige al dashboard */}
           <Route 
             path="/reset-password" 
             element={
               <RedirectIfLoggedIn>
-                <ResetPasswordForm /> {/* Muestra Reset Password solo si no está autenticado */}
+                <ResetPasswordForm />
               </RedirectIfLoggedIn>
             } 
           />
-
-          {/* Ruta protegida: Dashboard */}
+          {/*Ruta de General */}
           <Route 
             path="/dashboard" 
             element={
               <ProtectedRoute>
-                <Dashboard /> {/* Renderiza el Dashboard solo si el usuario está autenticado */}
+                <Dashboard />
               </ProtectedRoute>
             } 
           />
-
-          {/* Ruta protegida: Crear Tienda */}
+          {/*Ruta de tiendas */}
+          <Route 
+            path="/ver-tienda" 
+            element={
+              <ProtectedRoute>
+                <VerTiendas />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/crear-tienda" 
             element={
               <ProtectedRoute>
-                <CrearTienda /> {/* Renderiza Crear Tienda solo si el usuario está autenticado */}
+                <CrearTienda />
               </ProtectedRoute>
             } 
           />
-        </Routes>
+          {/*Ruta de Duenios */}
+          <Route 
+            path="/crear-dueño" 
+            element={
+              <ProtectedRoute>
+                <CrearDueño />
+              </ProtectedRoute>
+            } 
+          />
+          {/*Ruta de bodegas */}
+          <Route 
+            path="/crear-bodega" 
+            element={
+              <ProtectedRoute>
+                <CrearBodega />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/ver-bodegas" 
+            element={
+              <ProtectedRoute>
+                <VerBodegas />
+              </ProtectedRoute>
+            } 
+          />
+
+
+            {/*Ruta de racks */}
+          <Route 
+            path="/crear-rack" 
+            element={
+              <ProtectedRoute>
+                <CrearRack />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/QR-Crear" 
+            element={
+              <ProtectedRoute>
+                <QrGene />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/Ver-rack" 
+            element={
+              <ProtectedRoute>
+                <VerRack />
+              </ProtectedRoute>
+            } 
+          />
+
+            {/*Ruta de racks */}
+
+            <Route 
+            path="/Agreagar-Producto" 
+            element={
+              <ProtectedRoute>
+                <PostProd />
+              </ProtectedRoute>
+            } 
+          />
+          </Routes>
+        {/* Añadir ToastContainer en la jerarquía */}
+        <ToastContainer />
       </Router>
     </AuthProvider>
   );

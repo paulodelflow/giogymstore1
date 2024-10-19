@@ -11,6 +11,7 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
   const [isBodegaMenuOpen, setIsBodegaMenuOpen] = useState(false);
   const [isTiendaMenuOpen, setIsTiendaMenuOpen] = useState(false);
   const [isBugsMenuOpen, setIsBugsMenuOpen] = useState(false);
+  const [isDuenosMenuOpen, setIsDuenosMenuOpen] = useState(false); // Nuevo estado para el menú de dueños
 
   const toggleUsersMenu = () => setIsUsersMenuOpen(!isUsersMenuOpen);
   const toggleInventoryMenu = () => setIsInventoryMenuOpen(!isInventoryMenuOpen);
@@ -19,6 +20,7 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
   const toggleBodegaMenu = () => setIsBodegaMenuOpen(!isBodegaMenuOpen);
   const toggleTiendaMenu = () => setIsTiendaMenuOpen(!isTiendaMenuOpen);
   const toggleBugsMenu = () => setIsBugsMenuOpen(!isBugsMenuOpen);
+  const toggleDuenosMenu = () => setIsDuenosMenuOpen(!isDuenosMenuOpen); // Función para abrir/cerrar el submenú de dueños
 
   return (
     <aside
@@ -48,7 +50,9 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
           </Button>
           {isInventoryMenuOpen && (
             <div className="pl-6 mt-2 space-y-1">
+              <Link to="/Agreagar-Producto" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Producto</Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">Ver Productos</Button>
               <Button variant="ghost" className="w-full justify-start">Modificar Producto</Button>
             </div>
@@ -105,9 +109,15 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
           </Button>
           {isRackMenuOpen && (
             <div className="pl-6 mt-2 space-y-1">
+              <Link to="/crear-rack" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Rack</Button>
-              <Button variant="ghost" className="w-full justify-start">Modificar Rack</Button>
-              <Button variant="ghost" className="w-full justify-start">Ver Rack</Button>
+              </Link>
+              <Link to="/Qr-Crear" className="w-full block">
+              <Button variant="ghost" className="w-full justify-start">Imprimir QR</Button>
+              </Link>
+              <Link to="/Ver-rack" className="w-full block">
+              <Button variant="ghost" className="w-full justify-start">Ver Racks</Button>
+              </Link>
             </div>
           )}
         </div>
@@ -124,8 +134,12 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
           </Button>
           {isBodegaMenuOpen && (
             <div className="pl-6 mt-2 space-y-1">
+              <Link to="/crear-bodega" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Bodega</Button>
+              </Link>
+              <Link to="/ver-bodegas" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Ver Bodega</Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">Modificar Bodega</Button>
             </div>
           )}
@@ -146,7 +160,9 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
               <Link to="/crear-tienda" className="w-full block">
                 <Button variant="ghost" className="w-full justify-start">Crear Tienda</Button>
               </Link>
-              <Button variant="ghost" className="w-full justify-start">Ver Tienda</Button>
+              <Link to="/ver-tienda" className="w-full block">
+                <Button variant="ghost" className="w-full justify-start">Ver Tienda</Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">Modificar Tienda</Button>
             </div>
           )}
@@ -166,6 +182,27 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
             <div className="pl-6 mt-2 space-y-1">
               <Button variant="ghost" className="w-full justify-start">Crear Comentario</Button>
               <Button variant="ghost" className="w-full justify-start">Ver Bugs</Button>
+            </div>
+          )}
+        </div>
+
+        {/* Dueños */}
+        <div>
+          <Button
+            variant="ghost"
+            className="w-full justify-start flex items-center"
+            onClick={toggleDuenosMenu}
+          >
+            <Users className="mr-2 h-4 w-4" /> Dueños
+            {isDuenosMenuOpen ? <ChevronUp className="ml-auto h-4 w-4" /> : <ChevronDown className="ml-auto h-4 w-4" />}
+          </Button>
+          {isDuenosMenuOpen && (
+            <div className="pl-6 mt-2 space-y-1">
+              <Link to="/crear-dueño" className="w-full block">
+              <Button variant="ghost" className="w-full justify-start">Crear Dueño</Button>
+              </Link>
+              <Button variant="ghost" className="w-full justify-start">Ver Dueños</Button>
+              <Button variant="ghost" className="w-full justify-start">Modificar Dueño</Button>
             </div>
           )}
         </div>

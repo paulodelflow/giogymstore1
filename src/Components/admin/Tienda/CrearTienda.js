@@ -1,58 +1,118 @@
 import React, { useState } from "react";
 import { Input } from "../../ui/Input";
 import { Button } from "../../ui/button";
-import { db } from "../../../firebase"; // Importamos Firestore
+import { db } from "../../../libs/firebase"; // Importamos Firestore
 import { collection, addDoc } from "firebase/firestore"; // Para interactuar con Firestore
 import DashboardHeader from "../../menu/DashboardHeader"; // Importar el header del dashboard
 import DashboardSidebar from "../../menu/DashboardSidebar"; // Importar el sidebar del dashboard
+import chileRegions from '../../../data/comunas-regiones'; // Importar el archivo JSON de regiones
+import { toast } from "react-toastify"; // Importar el toast
+import 'react-toastify/dist/ReactToastify.css'; // Importa el CSS de react-toastify si no lo has hecho
 
-export default function Dashboard() {
+export default function CrearTienda() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [nombreTienda, setNombreTienda] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [ciudad, setCiudad] = useState("");
-  const [region, setRegion] = useState("");
+  const [formData, setFormData] = useState({
+    nombreTienda: "",
+    direccion: "",
+    numeroDireccion: "",
+    ciudad: "",
+    region: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Función para manejar el cambio de región y actualizar las ciudades (comunas)
+  const handleRegionChange = (e) => {
+    const selectedRegion = e.target.value;
+    setFormData({
+      ...formData,
+      region: selectedRegion,
+      ciudad: "", // Limpiar la ciudad seleccionada al cambiar la región
+    });
+  };
+
+  // Obtener las comunas de la región seleccionada
+  const comunas = formData.region
+    ? chileRegions.regiones.find((r) => r.region === formData.region)?.comunas || []
+    : [];
+
+  // Manejador general para actualizar los campos del formulario
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  };
+
+  // Validación del formulario
+  const validateForm = () => {
+    const { nombreTienda, direccion, numeroDireccion, ciudad, region } = formData;
+
+    // Verificar que los campos no estén vacíos
+    if (!nombreTienda.trim()) {
+      toast.error("El nombre de la tienda es obligatorio.");
+      return false;
+    }
+    if (!region) {
+      toast.error("Debe seleccionar una región.");
+      return false;
+    }
+    if (!ciudad) {
+      toast.error("Debe seleccionar una ciudad.");
+      return false;
+    }
+    if (!direccion.trim()) {
+      toast.error("La dirección es obligatoria.");
+      return false;
+    }
+    if (!numeroDireccion.trim() || !/^[0-9]+$/.test(numeroDireccion)) {
+      toast.error("El número de dirección debe ser un número válido.");
+      return false;
+    }
+
+    return true;
+  };
+
   // Función que maneja el envío del formulario
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita la recarga de la página
-    setLoading(true); // Inicia la carga
-    setError(null); // Resetea el error
-    setSuccess(false); // Resetea el mensaje de éxito
+    e.preventDefault();
+    setLoading(true);
 
-    // Validación simple para evitar campos vacíos
-    if (!nombreTienda || !direccion || !ciudad || !region) {
-      setError("Todos los campos son obligatorios.");
+    // Validación antes de enviar el formulario
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
 
+    const { nombreTienda, direccion, numeroDireccion, ciudad, region } = formData;
+
     try {
-      // Agregar los datos de la tienda a Firestore
-      await addDoc(collection(db, "tiendas"), {
+      // Agregar los datos de la tienda a Firestore con un ID automático
+      const docRef = await addDoc(collection(db, "tiendas"), {
         nombreTienda,
-        direccion,
+        direccion: `${direccion} ${numeroDireccion}`,
         ciudad,
         region,
-        fechaCreacion: new Date(), // Añadir fecha de creación
+        fechaCreacion: new Date(),
       });
 
-      // Si la tienda se creó con éxito
-      setSuccess(true);
-      setNombreTienda(""); // Limpiar los campos
-      setDireccion("");
-      setCiudad("");
-      setRegion("");
+      toast.success(`Tienda creada exitosamente con ID: ${docRef.id}`); // Muestra el ID de la tienda creada
+
+      // Limpiar el formulario
+      setFormData({
+        nombreTienda: "",
+        direccion: "",
+        numeroDireccion: "",
+        ciudad: "",
+        region: "",
+      });
     } catch (err) {
-      // Si ocurre un error
-      setError("Error al crear la tienda: " + err.message);
+      console.error("Error al agregar tienda a Firestore:", err);
+      toast.error("Error al crear la tienda: " + err.message); // Toast de error
     } finally {
-      setLoading(false); // Finaliza el estado de carga
+      setLoading(false);
     }
   };
 
@@ -69,8 +129,6 @@ export default function Dashboard() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4">
           <div className="max-w-lg mx-auto p-4 bg-white shadow-md rounded-lg">
             <h1 className="text-2xl font-bold mb-6">Crear Tienda</h1>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
-            {success && <div className="text-green-500 mb-4">Tienda creada exitosamente</div>}
             
             <form onSubmit={handleSubmit}>
               {/* Nombre de la tienda */}
@@ -82,11 +140,54 @@ export default function Dashboard() {
                   id="nombreTienda"
                   type="text"
                   placeholder="Nombre de la tienda"
-                  value={nombreTienda}
-                  onChange={(e) => setNombreTienda(e.target.value)}
+                  value={formData.nombreTienda}
+                  onChange={handleInputChange}
                   required
                   className="mt-1"
                 />
+              </div>
+
+              {/* Región */}
+              <div className="mb-4">
+                <label htmlFor="region" className="block text-sm font-medium text-gray-700">
+                  Región
+                </label>
+                <select
+                  id="region"
+                  value={formData.region}
+                  onChange={handleRegionChange}
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                  required
+                >
+                  <option value="">Seleccione una región</option>
+                  {chileRegions.regiones.map((r) => (
+                    <option key={r.region} value={r.region}>
+                      {r.region}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Ciudad (Comuna) */}
+              <div className="mb-4">
+                <label htmlFor="ciudad" className="block text-sm font-medium text-gray-700">
+                  Ciudad
+                </label>
+                <select
+                  id="ciudad"
+                  value={formData.ciudad}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                  required
+                  disabled={!formData.region} // Desactivar si no se ha seleccionado una región
+                >
+                  <option value="">Seleccione una ciudad</option>
+                  {comunas.map((comuna) => (
+                    <option key={comuna} value={comuna}>
+                      {comuna}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Dirección */}
@@ -98,40 +199,24 @@ export default function Dashboard() {
                   id="direccion"
                   type="text"
                   placeholder="Dirección"
-                  value={direccion}
-                  onChange={(e) => setDireccion(e.target.value)}
+                  value={formData.direccion}
+                  onChange={handleInputChange}
                   required
                   className="mt-1"
                 />
               </div>
 
-              {/* Ciudad */}
+              {/* Número de Dirección */}
               <div className="mb-4">
-                <label htmlFor="ciudad" className="block text-sm font-medium text-gray-700">
-                  Ciudad
+                <label htmlFor="numeroDireccion" className="block text-sm font-medium text-gray-700">
+                  Número de Dirección
                 </label>
                 <Input
-                  id="ciudad"
+                  id="numeroDireccion"
                   type="text"
-                  placeholder="Ciudad"
-                  value={ciudad}
-                  onChange={(e) => setCiudad(e.target.value)}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Región */}
-              <div className="mb-4">
-                <label htmlFor="region" className="block text-sm font-medium text-gray-700">
-                  Región
-                </label>
-                <Input
-                  id="region"
-                  type="text"
-                  placeholder="Región"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
+                  placeholder="Número"
+                  value={formData.numeroDireccion}
+                  onChange={handleInputChange}
                   required
                   className="mt-1"
                 />
@@ -139,7 +224,11 @@ export default function Dashboard() {
 
               {/* Botón de crear */}
               <div className="mb-4">
-                <Button type="submit" className="w-full bg-blue-500 text-white" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-500 text-white"
+                  disabled={loading}
+                >
                   {loading ? "Creando tienda..." : "Crear Tienda"}
                 </Button>
               </div>
