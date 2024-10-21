@@ -128,7 +128,7 @@ function App() {
             {/*Ruta de racks */}
 
             <Route 
-            path="/Agreagar-Producto" 
+            path="/Agregar-Producto" 
             element={
               <ProtectedRoute>
                 <PostProd />

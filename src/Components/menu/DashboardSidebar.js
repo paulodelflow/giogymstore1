@@ -48,7 +48,7 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
           </Button>
           {isInventoryMenuOpen && (
             <div className="pl-6 mt-2 space-y-1">
-              <Link to="/Agreagar-Producto" className="w-full block">
+              <Link to="/Agregar-Producto" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Producto</Button>
               </Link>
               <Button variant="ghost" className="w-full justify-start">Ver Productos</Button>
