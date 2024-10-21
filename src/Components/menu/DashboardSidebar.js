@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { Package, ChevronUp, ChevronDown, Users, Dumbbell, QrCode, Box, Store, Bug, X } from "lucide-react";
+import { Package, ChevronUp, ChevronDown, Users, Dumbbell, Box, Store, Bug, X } from "lucide-react";
 import { Link } from 'react-router-dom'; // Importar Link de react-router-dom
 
 export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
   const [isUsersMenuOpen, setIsUsersMenuOpen] = useState(false);
   const [isInventoryMenuOpen, setIsInventoryMenuOpen] = useState(false);
-  const [isQrMenuOpen, setIsQrMenuOpen] = useState(false);
   const [isRackMenuOpen, setIsRackMenuOpen] = useState(false);
   const [isBodegaMenuOpen, setIsBodegaMenuOpen] = useState(false);
   const [isTiendaMenuOpen, setIsTiendaMenuOpen] = useState(false);
@@ -15,7 +14,6 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
 
   const toggleUsersMenu = () => setIsUsersMenuOpen(!isUsersMenuOpen);
   const toggleInventoryMenu = () => setIsInventoryMenuOpen(!isInventoryMenuOpen);
-  const toggleQrMenu = () => setIsQrMenuOpen(!isQrMenuOpen);
   const toggleRackMenu = () => setIsRackMenuOpen(!isRackMenuOpen);
   const toggleBodegaMenu = () => setIsBodegaMenuOpen(!isBodegaMenuOpen);
   const toggleTiendaMenu = () => setIsTiendaMenuOpen(!isTiendaMenuOpen);
@@ -77,26 +75,6 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
             </div>
           )}
         </div>
-
-        {/* QR */}
-        <div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start flex items-center"
-            onClick={toggleQrMenu}
-          >
-            <QrCode className="mr-2 h-4 w-4" /> QR
-            {isQrMenuOpen ? <ChevronUp className="ml-auto h-4 w-4" /> : <ChevronDown className="ml-auto h-4 w-4" />}
-          </Button>
-          {isQrMenuOpen && (
-            <div className="pl-6 mt-2 space-y-1">
-              <Button variant="ghost" className="w-full justify-start">Crear QR</Button>
-              <Button variant="ghost" className="w-full justify-start">Eliminar QR</Button>
-              <Button variant="ghost" className="w-full justify-start">Ver QR</Button>
-            </div>
-          )}
-        </div>
-
         {/* Racks */}
         <div>
           <Button
