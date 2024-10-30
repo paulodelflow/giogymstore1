@@ -16,6 +16,10 @@ import CrearRack from './Components/User/Bodeguero/Racks/CrearRacks';
 import VerRack from './Components/User/Bodeguero/Racks/VerRacks';
 import QrGene from './Components/User/Bodeguero/Racks/ImprimirQr';
 import PostProd from './Components/User/Bodeguero/Productos/AgregarProductos';
+import GetProd from './Components/User/Bodeguero/Productos/VerProductos'
+import CrearUsuario from './Components/admin/users/CrearUser';
+import Verificacion from './Components/login/isverify'; // Cambia verif a Verificacion
+
 
 // Importa ToastContainer de react-toastify
 import { ToastContainer } from 'react-toastify';
@@ -36,6 +40,16 @@ function App() {
               </RedirectIfLoggedIn>
             } 
           />
+          <Route 
+            path="/verificacion" 
+            element={
+              <RedirectIfLoggedIn>
+                <Verificacion /> {/* Usa Verificacion en lugar de verif */}
+              </RedirectIfLoggedIn>
+            } 
+          />
+
+
 
           <Route 
             path="/reset-password" 
@@ -125,7 +139,7 @@ function App() {
             } 
           />
 
-            {/*Ruta de racks */}
+            {/*Ruta de productos */}
 
             <Route 
             path="/Agregar-Producto" 
@@ -135,6 +149,28 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          <Route 
+            path="/ver-Producto" 
+            element={
+              <ProtectedRoute>
+                <GetProd />
+              </ProtectedRoute>
+            } 
+          />
+           {/*Ruta de productos */}
+
+           <Route 
+            path="/Crear-users" 
+            element={
+              <ProtectedRoute>
+                <CrearUsuario />
+              </ProtectedRoute>
+            } 
+          />
+
+
+
           </Routes>
         {/* Añadir ToastContainer en la jerarquía */}
         <ToastContainer />

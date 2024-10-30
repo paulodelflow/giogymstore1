@@ -10,13 +10,15 @@ export default function VerBodegas() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bodegas, setBodegas] = useState([]); // Estado para almacenar las bodegas
   const [tiendas, setTiendas] = useState([]); // Estado para almacenar las tiendas
+  const [productos, setProductos] = useState([]); // Estado para almacenar los productos
+  const [racks, setRacks] = useState([]); // Estado para almacenar los racks
   const [filteredBodegas, setFilteredBodegas] = useState([]); // Estado para bodegas filtradas
   const [loading, setLoading] = useState(true);
   const [selectedTienda, setSelectedTienda] = useState(""); // Filtro por tienda
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Cargar las bodegas y tiendas desde Firestore
+  // Cargar las bodegas, tiendas, productos, y racks desde Firestore
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,8 +36,24 @@ export default function VerBodegas() {
           nombreTienda: doc.data().nombreTienda,
         }));
 
+        // Obtener productos
+        const productosSnapshot = await getDocs(collection(db, "productos"));
+        const productosList = productosSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // Obtener racks
+        const racksSnapshot = await getDocs(collection(db, "racks"));
+        const racksList = racksSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
         setBodegas(bodegasList);
         setTiendas(tiendasList);
+        setProductos(productosList); // Set products data
+        setRacks(racksList); // Set racks data
         setFilteredBodegas(bodegasList); // Inicialmente todas las bodegas están visibles
         setLoading(false);
       } catch (error) {
@@ -61,6 +79,13 @@ export default function VerBodegas() {
   // Manejar cambio en filtro de tienda
   const handleTiendaChange = (e) => {
     setSelectedTienda(e.target.value);
+  };
+
+  // Obtener productos asociados a una bodega (a través de racks)
+  const getProductosForBodega = (bodegaId) => {
+    const racksForBodega = racks.filter(rack => rack.codBodega === bodegaId);
+    const rackIds = racksForBodega.map(rack => rack.codRack);
+    return productos.filter(producto => rackIds.includes(producto.rack));
   };
 
   return (
@@ -103,15 +128,21 @@ export default function VerBodegas() {
                   {filteredBodegas.map((bodega) => (
                     <li key={bodega.id} className="mb-4">
                       <div className="bg-white shadow p-4 rounded-lg">
-                        <h2 className="font-bold text-lg">
-                          {bodega.nomBodega}
-                        </h2>
+                        <h2 className="font-bold text-lg">{bodega.nomBodega}</h2>
                         <p className="text-gray-600">Tienda: {tiendas.find((tienda) => tienda.id === bodega.idTienda)?.nombreTienda || "Tienda no encontrada"}</p>
+
+                        {/* Mostrar productos de la bodega */}
                         <p className="text-gray-600">
-                          {/* Verificar si hay productos registrados */}
-                          {bodega.cantidadProductos && bodega.cantidadProductos > 0 
-                            ? `Cantidad de productos: ${bodega.cantidadProductos}`
+                          {getProductosForBodega(bodega.codBodega).length > 0
+                            ? `Cantidad de productos: ${getProductosForBodega(bodega.codBodega).length}`
                             : "No hay productos registrados"}
+                        </p>
+
+                        {/* Mostrar racks de la bodega */}
+                        <p className="text-gray-600">
+                          {racks.filter(rack => rack.codBodega === bodega.codBodega).length > 0
+                            ? `Cantidad de racks: ${racks.filter(rack => rack.codBodega === bodega.codBodega).length}`
+                            : "No hay racks registrados"}
                         </p>
                       </div>
                     </li>

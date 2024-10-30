@@ -51,7 +51,10 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
               <Link to="/Agregar-Producto" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Producto</Button>
               </Link>
+              
+              <Link to="/ver-Producto" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Ver Productos</Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">Modificar Producto</Button>
             </div>
           )}
@@ -69,7 +72,10 @@ export default function DashboardSidebar({ sidebarOpen, toggleSidebar }) {
           </Button>
           {isUsersMenuOpen && (
             <div className="pl-6 mt-2 space-y-1">
+              
+              <Link to="/Crear-users" className="w-full block">
               <Button variant="ghost" className="w-full justify-start">Crear Usuario</Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">Ver Usuarios</Button>
               <Button variant="ghost" className="w-full justify-start">Modificar Usuario</Button>
             </div>

@@ -7,6 +7,8 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail 
 } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../libs/firebase'; // Importa la configuración de Firestore
 import Swal from 'sweetalert2';
 
 // Crear AuthContext
@@ -24,13 +26,38 @@ export const useAuth = () => {
 // AuthProvider componente
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userData, setUserData] = useState(null); // Estado para almacenar los datos del usuario (nombre, tienda, rol)
+  const [loading, setLoading] = useState(true); // Nuevo estado para indicar si los datos se están cargando
 
-  // Monitorizar el estado de autenticación
+  // Monitorizar el estado de autenticación y obtener datos del usuario de Firestore
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true); // Iniciar la carga cuando cambia el usuario
+      if (user) {
+        setCurrentUser(user);
+        console.log("UID del usuario autenticado:", user.uid); // <-- Depuración del UID
+        try {
+          // Obtener los datos adicionales del usuario desde Firestore
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            console.log("Datos del usuario obtenidos:", userSnap.data()); // <-- Depuración de los datos obtenidos
+            setUserData(userSnap.data()); // Guardar los datos del usuario (nombre, tienda, rol, etc.)
+          } else {
+            console.log("No se encontraron datos del usuario en Firestore."); // <-- Depuración si no se encuentra el documento
+            setUserData(null); // Asegurarse de que se limpia si no hay datos
+          }
+        } catch (error) {
+          console.error('Error obteniendo los datos del usuario:', error); // <-- Depuración en caso de error
+        }
+      } else {
+        console.log("No hay usuario autenticado."); // <-- Depuración cuando no hay usuario autenticado
+        setCurrentUser(null);
+        setUserData(null); // Si no hay usuario autenticado, limpiar los datos
+      }
+      setLoading(false); // Detener la carga después de obtener los datos
     });
-    return unsubscribe; // Limpiar suscripción al desmontar
+    return () => unsubscribe(); // Limpiar suscripción al desmontar
   }, []);
 
   // Función para iniciar sesión
@@ -101,12 +128,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Función para verificar y actualizar 'isVerified'
+  const verifyAccount = async () => {
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userRef, { isVerified: true });
+      Swal.fire('Éxito', 'Tu cuenta ha sido verificada correctamente', 'success');
+    } catch (error) {
+      Swal.fire('Error', 'Hubo un problema verificando tu cuenta.', 'error');
+    }
+  };
+
   const value = {
     currentUser,
+    userData, // Exponer los datos del usuario para usar en otros componentes
+    loading, // Estado de carga expuesto para usar en los componentes
     login,
     logout,
     register,
     resetPassword,
+    verifyAccount, // Exponer la función para verificar la cuenta
   };
 
   return (
